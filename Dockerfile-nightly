@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly as builder
+FROM tari-labs/rust:nightly as builder
 
 WORKDIR /opt/tarpaulin
 
@@ -18,10 +18,16 @@ RUN cd /opt/tarpaulin/ && \
     rm -rf /opt/tarpaulin/ && \
     rm -rf /usr/local/cargo/registry/
 
-FROM rustlang/rust:nightly
+FROM tari-labs/rust:nightly
 
 COPY --from=builder /usr/local/cargo/bin/cargo-tarpaulin /usr/local/cargo/bin/cargo-tarpaulin
 
 WORKDIR /volume
+
+RUN apt-get update && \
+    apt-get -y install cmake libc++-dev libc++abi-dev
+
+RUN rustup default nightly-2020-08-13-x86_64-unknown-linux-gnu && \
+rustup component add rustfmt --toolchain nightly-2020-08-13-x86_64-unknown-linux-gnu
 
 CMD cargo build && cargo tarpaulin
